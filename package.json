@@ -1,0 +1,24 @@
+{
+  "name": "swap",
+  "version": "0.0.1",
+  "description": "Swap line numbers in pipeline processing",
+  "main": "index.js",
+  "scripts": {
+    "bundle": "wes bundle ./sample.txt ./usage.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wachaon/swap.git"
+  },
+  "keywords": [
+    "wes",
+    "pipe",
+    "swap"
+  ],
+  "author": "wachaon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wachaon/swap/issues"
+  },
+  "homepage": "https://github.com/wachaon/swap#readme"
+}
