@@ -1,0 +1,32 @@
+{
+  "{39716E15-4CB8-40D1-A090-E6F55C0AEAFC}": {
+    "source": "{\n  \"name\": \"swap\",\n  \"version\": \"0.0.1\",\n  \"description\": \"Swap line numbers in pipeline processing\",\n  \"main\": \"index.js\",\n  \"scripts\": {\n    \"bundle\": \"wes bundle ./sample.txt ./usage.js\"\n  },\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/wachaon/swap.git\"\n  },\n  \"keywords\": [\n    \"wes\",\n    \"pipe\",\n    \"swap\"\n  ],\n  \"author\": \"wachaon\",\n  \"license\": \"MIT\",\n  \"bugs\": {\n    \"url\": \"https://github.com/wachaon/swap/issues\"\n  },\n  \"homepage\": \"https://github.com/wachaon/swap#readme\"\n}",
+    "mapping": {},
+    "path": "{swap}/package.json"
+  },
+  "{77034612-7E2C-489A-B66F-B00E40C8F94E}": {
+    "source": "const { isString, isArray } = require('typecheck')\r\nconst { STRING, OBJECT, NONE, LF, rLINE_SEP } = require('text')\r\nconst { unnamed, get } = require('argv')\r\nconst isCLI = require('isCLI')\r\nconst { resolve, extname } = require('pathname')\r\nconst { readFileSync, writeFileSync } = require('filesystem')\r\nconst genGUID = require('genGUID')\r\n\r\nif (isCLI(__filename)) {\r\n    const [, ...swapper] = unnamed\r\n    const input = get('input') || console.error('Unspecified params [input]')\r\n    const ext = extname(input)\r\n    const output = get('output') === true ? NONE : resolve(process.cwd(), get('output') || genGUID() + ext)\r\n    const data = ext === NONE ? require(input) : readFileSync(resolve(process.cwd(), input), 'auto')\r\n    const result = swap(data, ...swapper)\r\n\r\n    if (output === NONE) console.log(result)\r\n    else console.log(() => writeFileSync(output, result, 'UTF-8'))\r\n} else module.exports = swap\r\n\r\nfunction swap(data, ...swapper) {\r\n    let type = OBJECT\r\n    if (isString(data)) {\r\n        type = STRING\r\n        data = data.split(rLINE_SEP)\r\n    }\r\n    if (isArray(data)) {\r\n        const divisor = Math.max(...swapper) + 1\r\n        const res = []\r\n        for (let i = 0; i < data.length; i++) {\r\n            const mod = i % divisor\r\n            res[i] = data[i - mod + swapper[mod]]\r\n        }\r\n        return type === STRING ? res.join(LF) : res\r\n    } else data\r\n}\r\n",
+    "mapping": {},
+    "path": "{swap}/index.js"
+  },
+  "{448D6CC4-5FFE-42EE-B555-AD65F2284666}": {
+    "source": "A\r\nB\r\nC\r\nD\r\nE\r\nF\r\nG\r\nH\r\nI\r\nJ\r\nK\r\nL",
+    "mapping": {},
+    "path": "{swap}/sample.txt"
+  },
+  "{27BD7882-E2D4-4B20-BA7F-69B0A788E7F8}": {
+    "source": "const { readFileSync } = require('filesystem')\r\nconst { resolve } = require('pathname')\r\nconst pipe = require('pipe')\r\nconst swap = require('./index')\r\n\r\nconst spec = resolve(process.cwd(), 'sample.txt')\r\nconst input = readFileSync(spec, 'auto')\r\n\r\npipe()\r\n    .use(swap, [2, 3, 0, 1])\r\n    .process(input, (err, res) => {\r\n        if (err) console.error(err)\r\n        console.log(res)\r\n    })",
+    "mapping": {},
+    "path": "{swap}/usage.js"
+  },
+  "{08286DF5-8A4E-419F-A559-1B587EC3DA91}": {
+    "source": "MIT License\n\nCopyright (c) 2023 wachaon\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "mapping": {},
+    "path": "{swap}/LICENSE"
+  },
+  "{611002C0-C92D-4B91-9B3A-564C7A1998DC}": {
+    "source": "# *swap*\n*wes* の *pipe* モジュールで使用する変換器になります。\n*swap* はテキストや配列の順番を一定周期で入れ替えます\nモジュールとして *pipe* で使用する以外に、コンソールからも直接使用できます。\n\n## インストール\n*wes* が既にインストールされている必要があります。\nコンソールで以下のコマンドでインストールできます。\n\n```bash\nwes install @wachaon/swap --bare\n```\n\n## 使い方\n\nsample.txt\n```\nA\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\n```\n\nコンソールからは *swap* に続けて入れ替える番号を0から入力します。\n`--input` は入力するファイルのパスを `--outputo` には出力するファイルパスを入力します。\n\n`--output` が無ければ自動でファイル名を生成します。`--output=\"\"` ならコンソールに結果を出力します。 \n\n```bash\nwes swap 2 3 0 1 --input=\"sample.txt\" --output=\"\"\n```\n\nモジュールとして使う場合は *pipe* の変換器として使用します。\n\n```javascript\nconst { readFileSync } = require('filesystem')\nconst { resolve } = require('pathname')\nconst pipe = require('pipe')\nconst swap = require('./index')\n\nconst spec = resolve(process.cwd(), 'sample.txt')\nconst input = readFileSync(spec, 'auto')\n\npipe()\n    .use(swap, [2, 3, 0, 1])\n    .process(input, (err, res) => {\n        if (err) console.error(err)\n        console.log(res)\n    })\n```",
+    "mapping": {},
+    "path": "{swap}/README.md"
+  }
+}
